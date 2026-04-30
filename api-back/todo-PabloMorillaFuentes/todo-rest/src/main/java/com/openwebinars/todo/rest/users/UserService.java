@@ -19,8 +19,15 @@ public class UserService {
                 .username(comando.username())
                 .email(comando.email())
                 .password(passwordEncoder.encode(comando.password()))
-                .isAdmin(false)
+                .fullname(comando.fullname())
+                .role(UserRole.USER)
                 .build();
+        return userRepository.save(user);
+    }
+
+    public User update(User user, UpdateUserCommand command) {
+        user.setEmail(command.email());
+        user.setFullname(command.fullname());
         return userRepository.save(user);
     }
 

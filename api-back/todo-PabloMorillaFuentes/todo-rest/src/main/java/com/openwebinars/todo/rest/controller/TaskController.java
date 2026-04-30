@@ -4,6 +4,7 @@ import com.openwebinars.todo.rest.dto.EditTaskDto;
 import com.openwebinars.todo.rest.dto.GetTaskDto;
 import com.openwebinars.todo.rest.service.TaskService;
 import com.openwebinars.todo.rest.users.User;
+import com.openwebinars.todo.rest.model.TaskPriority;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -35,50 +36,25 @@ public class TaskController {
     private final TaskService taskService;
 
     @Operation(
-            summary = "Obtener todas las tareas del usuario",
-            description = "Permite obtener todas las tareas de un usuario"
+            summary = "Obtener todas las tareas del usuario (con filtros opcionales)",
+            description = "Permite obtener todas las tareas de un usuario, con capacidad de filtrado"
     )
     @ApiResponse(description = "Listado de tareas del usuario",
             responseCode = "200",
             content = @Content(
                     mediaType = "application/json",
-                    array = @ArraySchema(schema = @Schema(implementation = GetTaskDto.class)),
-                    examples = {
-                            @ExampleObject("""
-                                    [
-                                        {
-                                             "id": 1,
-                                             "title": "Comprar alimentos",
-                                             "description": "Hacer una lista de compras para el supermercado.",
-                                             "createdAt": "2025-01-13T16:12:11.295172",
-                                             "deadline": "2025-01-20T16:12:11.295172",
-                                             "author": {
-                                                 "id": 1,
-                                                 "username": "Pablo Morilla",
-                                                 "email": "pablo.morilla@example.com"
-                                             }
-                                         },
-                                         {
-                                             "id": 51,
-                                             "title": "Pagar facturas",
-                                             "description": "Pagar la factura de electricidad antes de la fecha límite.",
-                                             "createdAt": "2025-01-13T16:12:11.296628",
-                                             "deadline": "2025-01-15T16:12:11.296628",
-                                             "author": {
-                                                   "id": 1,
-                                                   "username": "Pablo Morilla",
-                                                   "email": "pablo.morilla@example.com"
-                                             }
-                                         }
-                                    ]
-                                """)
-                    }
+                    array = @ArraySchema(schema = @Schema(implementation = GetTaskDto.class))
             )
     )
     @GetMapping
-    public List<GetTaskDto> getAll(@AuthenticationPrincipal User autor) {
-        //return taskService.findAll()
-        return taskService.findByAuthor(autor)
+    public List<GetTaskDto> getAll(
+            @AuthenticationPrincipal User autor,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Boolean completed,
+            @RequestParam(required = false) TaskPriority priority,
+            @RequestParam(required = false) String tag
+    ) {
+        return taskService.search(autor, categoryId, completed, priority, tag)
                 .stream()
                 .map(GetTaskDto::of)
                 .toList();

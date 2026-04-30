@@ -4,8 +4,12 @@ import com.openwebinars.todo.rest.users.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -15,6 +19,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @Builder
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Task {
 
     @Id
@@ -24,6 +29,9 @@ public class Task {
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
     private String title;
 
     @Lob
@@ -31,8 +39,26 @@ public class Task {
 
     private LocalDateTime deadline;
 
+    @Builder.Default
+    private boolean completed = false;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private TaskPriority priority = TaskPriority.MEDIUM;
+
     @ManyToOne
     private User author;
+
+    @ManyToOne
+    private Category category;
+
+    @ManyToMany
+    @Builder.Default
+    @ToString.Exclude
+    @JoinTable(name = "task_tags",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    private List<Tag> tags = new ArrayList<>();
 
 
     @Override
