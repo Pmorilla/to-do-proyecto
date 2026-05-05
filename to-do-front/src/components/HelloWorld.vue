@@ -6,11 +6,11 @@ const counter = useCounterStore()
 
 <template>
   <div class="min-h-screen bg-base-200 flex items-center justify-center p-4">
-    <!-- Hero Section -->
+    <!-- Sección de Héroe -->
     <div class="hero max-w-4xl bg-base-100 shadow-2xl rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-primary/20 hover:shadow-3xl">
       <div class="hero-content flex-col lg:flex-row gap-10 p-10 lg:p-16">
         
-        <!-- Decoration / Logo -->
+        <!-- Decoración / Logo -->
         <div class="w-full max-w-sm rounded-2xl bg-gradient-to-br from-primary to-secondary p-1 shadow-lg transform transition-transform hover:scale-105 duration-300">
            <div class="bg-base-100/90 backdrop-blur-sm rounded-xl h-64 flex items-center justify-center">
              <div class="text-center">
@@ -20,7 +20,7 @@ const counter = useCounterStore()
            </div>
         </div>
 
-        <!-- Main Content -->
+        <!-- Contenido Principal -->
         <div class="text-center lg:text-left">
           <div class="badge badge-primary badge-outline mb-4">Entorno Configurado</div>
           <h1 class="text-5xl font-extrabold tracking-tight mb-4 text-base-content">
@@ -30,7 +30,7 @@ const counter = useCounterStore()
             ¡Tu stack tecnológico está funcionando perfectamente! Pinia, Tailwind CSS y los componentes de DaisyUI están integrados y listos para desarrollar tu aplicación.  
           </p>
           
-          <!-- Pinia Store Interactive Section -->
+          <!-- Sección Interactiva del Store de Pinia -->
           <div class="mt-6 flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
             <div class="stats bg-base-200 shadow">
               <div class="stat px-8 py-3">
@@ -64,5 +64,4 @@ const counter = useCounterStore()
 </template>
 
 <style scoped>
-/* Optional scoped styles for micro-animations */
 </style>

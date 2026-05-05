@@ -51,7 +51,7 @@ const handleDelete = async (id) => {
 
 <template>
   <div class="mt-8 space-y-8 max-w-4xl mx-auto">
-    <!-- Header -->
+    <!-- Encabezado -->
     <div class="bg-base-200/50 backdrop-blur-sm p-6 rounded-3xl border border-white/5 shadow-xl">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <div>
@@ -69,7 +69,7 @@ const handleDelete = async (id) => {
       </div>
     </div>
 
-    <!-- Categories Table/List -->
+    <!-- Tabla/Lista de Categorías -->
     <div class="bg-base-200/30 rounded-3xl border border-white/5 shadow-xl overflow-hidden">
       <div class="overflow-x-auto">
         <table class="table w-full">
@@ -107,7 +107,7 @@ const handleDelete = async (id) => {
       </div>
     </div>
 
-    <!-- Modal for Create/Edit -->
+    <!-- Modal para Crear/Editar -->
     <div v-if="showModal" class="modal modal-open">
       <div class="modal-box rounded-3xl border border-white/5 bg-base-100 shadow-2xl p-8">
         <h3 class="text-2xl font-black mb-6">{{ editingCategory ? 'Editar Categoría' : 'Nueva Categoría' }}</h3>

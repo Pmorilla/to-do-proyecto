@@ -5,17 +5,16 @@ const api = axios.create({
   baseURL: 'http://localhost:8080',
 });
 
+// Intercepta las peticiones salientes para añadir el token de autenticación si el usuario ha iniciado sesión
 api.interceptors.request.use((config) => {
   const authStore = useAuthStore();
-  
-  // Do not add Authorization header if we are registering or if it's already set
+
   const isPublicEndpoint = config.url.includes('/auth/register');
-  
+
   if (!isPublicEndpoint && authStore.isAuthenticated && authStore.token && !config.headers.Authorization) {
     config.headers.Authorization = `Basic ${authStore.token}`;
   }
-  
-  console.log(`Sending request to ${config.url}`, config.headers);
+
   return config;
 });
 

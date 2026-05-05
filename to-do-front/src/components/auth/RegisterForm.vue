@@ -17,7 +17,7 @@ const handleRegister = async () => {
   loading.value = true;
   try {
     await authStore.register({ username: username.value, password: password.value, email: email.value });
-    // Attempt auto-login after register
+    // Intentar iniciar sesión automáticamente tras el registro
     await authStore.login(username.value, password.value);
     router.push({ name: 'home' });
   } catch (err) {

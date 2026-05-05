@@ -3,7 +3,6 @@ package com.openwebinars.todo.rest.controller;
 import com.openwebinars.todo.rest.model.Category;
 import com.openwebinars.todo.rest.repos.CategoryRepository;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

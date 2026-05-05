@@ -37,6 +37,7 @@ const formatDatetimeLocal = (dateString) => {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 };
 
+// Actualizamos el formulario interno cada vez que se muestre el modal (propiedad show) o la tarea a editar cambie
 watch(() => props.show, (newVal) => {
   if (newVal) {
     if (props.taskToEdit) {

@@ -49,7 +49,7 @@ const handleDeleteTag = async (id) => {
         <button class="btn btn-sm btn-circle btn-ghost" @click="emit('close')">✕</button>
       </div>
 
-      <!-- Add Tag Form -->
+      <!-- Formulario para Añadir Etiqueta -->
       <div class="flex gap-2 mb-8">
         <input 
           v-model="newTagName" 
@@ -67,7 +67,7 @@ const handleDeleteTag = async (id) => {
         </button>
       </div>
 
-      <!-- Tag List -->
+      <!-- Lista de Etiquetas -->
       <div class="space-y-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
         <div v-if="taskStore.tags.length === 0" class="text-center py-8 opacity-40 italic">
           No hay etiquetas creadas

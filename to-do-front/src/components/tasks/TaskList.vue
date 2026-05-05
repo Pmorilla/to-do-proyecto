@@ -11,7 +11,7 @@ const showModal = ref(false);
 const showTagManager = ref(false);
 const selectedTask = ref(null);
 
-// Filters
+// Filtros para las tareas
 const filters = ref({
   categoryId: '',
   completed: '',
@@ -25,6 +25,7 @@ onMounted(async () => {
   await taskStore.fetchTags();
 });
 
+// Recargar las tareas desde la API automáticamente si cambia algún filtro
 watch(filters, () => {
   taskStore.fetchTasks(filters.value);
 }, { deep: true });
@@ -66,7 +67,7 @@ const clearFilters = () => {
 
 <template>
   <div class="mt-8 space-y-8">
-    <!-- Header and Filters -->
+    <!-- Encabezado y Filtros -->
     <div class="bg-base-200/50 backdrop-blur-sm p-6 rounded-3xl border border-white/5 shadow-xl relative z-30">
       <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
@@ -94,9 +95,9 @@ const clearFilters = () => {
 
       <div class="divider opacity-10"></div>
 
-      <!-- Filter Bar -->
+      <!-- Barra de Filtros -->
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
-        <!-- Categoría Dropdown -->
+        <!-- Desplegable de Categoría -->
         <div class="dropdown">
           <label class="label py-1"><span class="label-text text-xs font-bold uppercase opacity-50">Categoría</span></label>
           <div tabindex="0" role="button" class="btn btn-sm btn-outline rounded-xl w-full justify-between bg-base-100 border-base-content/20">
@@ -113,7 +114,7 @@ const clearFilters = () => {
           </ul>
         </div>
 
-        <!-- Estado Dropdown -->
+        <!-- Desplegable de Estado -->
         <div class="dropdown">
           <label class="label py-1"><span class="label-text text-xs font-bold uppercase opacity-50">Estado</span></label>
           <div tabindex="0" role="button" class="btn btn-sm btn-outline rounded-xl w-full justify-between bg-base-100 border-base-content/20">
@@ -129,7 +130,7 @@ const clearFilters = () => {
           </ul>
         </div>
 
-        <!-- Prioridad Dropdown -->
+        <!-- Desplegable de Prioridad -->
         <div class="dropdown">
           <label class="label py-1"><span class="label-text text-xs font-bold uppercase opacity-50">Prioridad</span></label>
           <div tabindex="0" role="button" class="btn btn-sm btn-outline rounded-xl w-full justify-between bg-base-100 border-base-content/20">
@@ -157,7 +158,7 @@ const clearFilters = () => {
       </div>
     </div>
 
-    <!-- Task List -->
+    <!-- Lista de Tareas -->
     <div v-if="taskStore.loading" class="flex flex-col items-center justify-center my-24 gap-4">
       <span class="loading loading-infinity loading-lg text-primary"></span>
       <p class="text-sm font-bold uppercase tracking-widest opacity-30">Sincronizando tareas...</p>
