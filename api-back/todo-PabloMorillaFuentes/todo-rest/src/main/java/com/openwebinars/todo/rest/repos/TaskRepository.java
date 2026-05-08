@@ -4,7 +4,7 @@ import com.openwebinars.todo.rest.model.Category;
 import com.openwebinars.todo.rest.model.Tag;
 import com.openwebinars.todo.rest.model.Task;
 import com.openwebinars.todo.rest.model.TaskPriority;
-import com.openwebinars.todo.rest.users.User;
+import com.openwebinars.todo.rest.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

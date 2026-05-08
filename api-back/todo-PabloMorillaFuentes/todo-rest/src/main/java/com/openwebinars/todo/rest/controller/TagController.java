@@ -32,6 +32,17 @@ public class TagController {
         return ResponseEntity.status(HttpStatus.CREATED).body(tagRepository.save(tag));
     }
 
+    @Operation(summary = "Editar una etiqueta")
+    @PutMapping("/{id}")
+    public Tag update(@PathVariable Long id, @RequestBody Tag tag) {
+        return tagRepository.findById(id)
+                .map(old -> {
+                    old.setName(tag.getName());
+                    return tagRepository.save(old);
+                })
+                .orElseThrow(() -> new RuntimeException("Tag no encontrada"));
+    }
+
     @Operation(summary = "Eliminar una etiqueta")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {

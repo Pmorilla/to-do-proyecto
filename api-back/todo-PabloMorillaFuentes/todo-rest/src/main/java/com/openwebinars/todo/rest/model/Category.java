@@ -23,6 +23,7 @@ public class Category {
 
     @Builder.Default
     @ToString.Exclude
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     private List<Task> tasks = new ArrayList<>();
 }

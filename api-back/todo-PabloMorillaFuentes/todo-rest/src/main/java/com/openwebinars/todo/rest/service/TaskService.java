@@ -7,13 +7,17 @@ import com.openwebinars.todo.rest.model.Task;
 import com.openwebinars.todo.rest.repos.CategoryRepository;
 import com.openwebinars.todo.rest.repos.TagRepository;
 import com.openwebinars.todo.rest.repos.TaskRepository;
-import com.openwebinars.todo.rest.users.User;
+import com.openwebinars.todo.rest.model.User;
 import com.openwebinars.todo.rest.model.TaskPriority;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
+import com.openwebinars.todo.rest.dto.DashboardDto;
 
 /**
  * Servicio para gestión de tareas
@@ -95,15 +99,16 @@ public class TaskService {
                     t.setPriority(peticion.priority());
 
                     if (peticion.categoryId() != null) {
-                        categoryRepository.findById(peticion.categoryId()).ifPresent(t::setCategory);
+                        t.setCategory(categoryRepository.findById(peticion.categoryId()).orElse(null));
                     } else {
                         t.setCategory(null);
                     }
 
                     if (peticion.tags() != null) {
-                        t.setTags(peticion.tags().stream()
+                        t.getTags().clear();
+                        t.getTags().addAll(peticion.tags().stream()
                                 .map(name -> tagRepository.findByName(name).orElseGet(() -> tagRepository.save(Tag.builder().name(name).build())))
-                                .collect(Collectors.toList()));
+                                .toList());
                     } else {
                         t.getTags().clear();
                     }
@@ -116,6 +121,32 @@ public class TaskService {
 
     public void delete(Long id) {
         taskRepository.deleteById(id);
+    }
+
+    public DashboardDto getDashboard(User autor) {
+        List<Task> tasks = taskRepository.findByAuthor(autor);
+        
+        long total = tasks.size();
+        long completed = tasks.stream().filter(Task::isCompleted).count();
+        long pending = total - completed;
+        
+        LocalDateTime now = LocalDateTime.now();
+        long overdue = tasks.stream()
+                .filter(t -> !t.isCompleted() && t.getDeadline() != null && t.getDeadline().isBefore(now))
+                .count();
+                
+        Map<String, Long> byCategory = tasks.stream()
+                .filter(t -> t.getCategory() != null)
+                .collect(Collectors.groupingBy(t -> t.getCategory().getName(), Collectors.counting()));
+                
+        Map<String, Long> byTag = new HashMap<>();
+        tasks.forEach(t -> {
+            t.getTags().forEach(tag -> {
+                byTag.put(tag.getName(), byTag.getOrDefault(tag.getName(), 0L) + 1);
+            });
+        });
+        
+        return new DashboardDto(total, completed, pending, overdue, byCategory, byTag);
     }
 
 

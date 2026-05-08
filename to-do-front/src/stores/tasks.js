@@ -23,7 +23,7 @@ export const useTaskStore = defineStore('tasks', {
         if (filters.priority) params.append('priority', filters.priority);
         if (filters.tag) params.append('tag', filters.tag);
 
-        const response = await api.get(`/task/?${params.toString()}`);
+        const response = await api.get(`/task?${params.toString()}`);
         this.tasks = response.data;
       } catch (error) {
         if (error.response && error.response.status === 404) {
@@ -101,6 +101,20 @@ export const useTaskStore = defineStore('tasks', {
       }
     },
 
+    async updateTag(id, tagName) {
+      try {
+        const response = await api.put(`/tag/${id}`, { name: tagName });
+        const index = this.tags.findIndex(t => t.id === id);
+        if (index !== -1) {
+          this.tags[index] = response.data;
+        }
+        return response.data;
+      } catch (error) {
+        console.error('Error al actualizar etiqueta', error);
+        throw error;
+      }
+    },
+
     async deleteTag(tagId) {
       try {
         await api.delete(`/tag/${tagId}`);
@@ -113,7 +127,7 @@ export const useTaskStore = defineStore('tasks', {
 
     async addTask(taskData) {
       try {
-        const response = await api.post('/task/', taskData);
+        const response = await api.post('/task', taskData);
         this.tasks.push(response.data);
       } catch (error) {
         console.error('Error al añadir tarea', error);

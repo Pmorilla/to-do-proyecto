@@ -175,7 +175,7 @@ const clearFilters = () => {
       <p class="mt-2 text-base-content/30 max-w-xs mx-auto">Ajusta tus filtros o crea una nueva tarea para empezar a ser productivo.</p>
     </div>
 
-    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 pb-12">
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-12">
       <TaskItem 
         v-for="task in taskStore.tasks" 
         :key="task.id" 

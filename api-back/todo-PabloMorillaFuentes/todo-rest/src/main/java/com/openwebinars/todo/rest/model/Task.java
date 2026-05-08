@@ -1,6 +1,6 @@
 package com.openwebinars.todo.rest.model;
 
-import com.openwebinars.todo.rest.users.User;
+import com.openwebinars.todo.rest.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
@@ -47,9 +47,12 @@ public class Task {
     private TaskPriority priority = TaskPriority.MEDIUM;
 
     @ManyToOne
+    @ToString.Exclude
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private User author;
-
+    
     @ManyToOne
+    @ToString.Exclude
     private Category category;
 
     @ManyToMany

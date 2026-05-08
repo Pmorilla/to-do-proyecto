@@ -23,6 +23,7 @@ public class Tag {
 
     @Builder.Default
     @ToString.Exclude
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @ManyToMany(mappedBy = "tags")
     private List<Task> tasks = new ArrayList<>();
 }

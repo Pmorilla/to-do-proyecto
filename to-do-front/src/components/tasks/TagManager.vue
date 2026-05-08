@@ -12,6 +12,8 @@ const props = defineProps({
 const emit = defineEmits(['close']);
 const taskStore = useTaskStore();
 const newTagName = ref('');
+const editingTagId = ref(null);
+const editTagName = ref('');
 const loading = ref(false);
 
 const handleAddTag = async () => {
@@ -35,6 +37,30 @@ const handleDeleteTag = async (id) => {
     } catch (error) {
       alert('Error al eliminar la etiqueta');
     }
+  }
+};
+
+const startEdit = (tag) => {
+  editingTagId.value = tag.id;
+  editTagName.value = tag.name;
+};
+
+const cancelEdit = () => {
+  editingTagId.value = null;
+  editTagName.value = '';
+};
+
+const handleUpdateTag = async (id) => {
+  if (!editTagName.value.trim()) return;
+  
+  loading.value = true;
+  try {
+    await taskStore.updateTag(id, editTagName.value.trim());
+    cancelEdit();
+  } catch (error) {
+    alert('Error al actualizar la etiqueta');
+  } finally {
+    loading.value = false;
   }
 };
 </script>
@@ -78,16 +104,40 @@ const handleDeleteTag = async (id) => {
           :key="tag.id" 
           class="flex justify-between items-center p-3 rounded-xl bg-base-200/50 border border-white/5 group hover:bg-base-200 transition-colors"
         >
-          <span class="font-semibold text-base-content/80">#{{ tag.name }}</span>
-          <button 
-            @click="handleDeleteTag(tag.id)" 
-            class="btn btn-circle btn-xs btn-ghost text-error opacity-0 group-hover:opacity-100 transition-opacity"
-            title="Eliminar etiqueta"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div v-if="editingTagId === tag.id" class="flex-1 flex gap-2">
+            <input 
+              v-model="editTagName" 
+              type="text" 
+              class="input input-bordered input-sm flex-1 focus:input-accent"
+              @keyup.enter="handleUpdateTag(tag.id)"
+              @keyup.esc="cancelEdit"
+            />
+            <button @click="handleUpdateTag(tag.id)" class="btn btn-sm btn-accent" :disabled="!editTagName.trim() || loading">Guardar</button>
+            <button @click="cancelEdit" class="btn btn-sm btn-ghost">Cancelar</button>
+          </div>
+          <template v-else>
+            <span class="font-semibold text-base-content/80">#{{ tag.name }}</span>
+            <div class="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+              <button 
+                @click="startEdit(tag)" 
+                class="btn btn-circle btn-xs btn-ghost text-info"
+                title="Editar etiqueta"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                </svg>
+              </button>
+              <button 
+                @click="handleDeleteTag(tag.id)" 
+                class="btn btn-circle btn-xs btn-ghost text-error"
+                title="Eliminar etiqueta"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </template>
         </div>
       </div>
 

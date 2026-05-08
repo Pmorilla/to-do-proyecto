@@ -1,4 +1,6 @@
-package com.openwebinars.todo.rest.users;
+package com.openwebinars.todo.rest.dto;
+
+import com.openwebinars.todo.rest.model.User;
 
 public record NewUserResponse(Long id, String username, String email, String fullname, String role) {
 

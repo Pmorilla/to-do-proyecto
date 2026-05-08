@@ -28,14 +28,14 @@ public class CategoryController {
 
     @Operation(summary = "Crear una categoría (Solo ADMIN)")
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<Category> create(@RequestBody Category category) {
         return ResponseEntity.status(HttpStatus.CREATED).body(categoryRepository.save(category));
     }
 
     @Operation(summary = "Editar una categoría (Solo ADMIN)")
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public Category update(@PathVariable Long id, @RequestBody Category category) {
         return categoryRepository.findById(id)
                 .map(old -> {
@@ -47,7 +47,7 @@ public class CategoryController {
 
     @Operation(summary = "Eliminar una categoría (Solo ADMIN)")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         categoryRepository.deleteById(id);
         return ResponseEntity.noContent().build();

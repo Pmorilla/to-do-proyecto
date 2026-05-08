@@ -2,8 +2,9 @@ package com.openwebinars.todo.rest.controller;
 
 import com.openwebinars.todo.rest.dto.EditTaskDto;
 import com.openwebinars.todo.rest.dto.GetTaskDto;
+import com.openwebinars.todo.rest.dto.DashboardDto;
 import com.openwebinars.todo.rest.service.TaskService;
-import com.openwebinars.todo.rest.users.User;
+import com.openwebinars.todo.rest.model.User;
 import com.openwebinars.todo.rest.model.TaskPriority;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -28,7 +29,7 @@ import java.util.List;
  * @author Pablo Morilla
  */
 @RestController
-@RequestMapping("/task/")
+@RequestMapping("/task")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "basicAuth")
 public class TaskController {
@@ -171,9 +172,7 @@ public class TaskController {
                     }
             )
     )
-    @PreAuthorize("""
-            @ownerCheck.check(#id, authentication.principal.getId())
-            """)
+    @PreAuthorize("hasRole('ADMIN') or @ownerCheck.check(#id, principal)")
     @PutMapping("/{id}")
     public GetTaskDto edit(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -194,20 +193,21 @@ public class TaskController {
         return GetTaskDto.of(taskService.edit(peticion, id));
     }
 
-    @Operation(
-            summary = "Eliminar una tarea",
-            description = "Permite eliminar una tarea asociada al usuario autenticado si se proporciona su ID"
-    )
+    @Operation(summary = "Eliminar una tarea")
     @ApiResponse(description = "Respuesta correcta de tarea eliminada",
             responseCode = "204",
             content = @Content(schema = @Schema(implementation = Void.class)))
-    @PreAuthorize("""
-            @ownerCheck.check(#id, authentication.principal.getId())
-            """)
+    @PreAuthorize("hasRole('ADMIN') or @ownerCheck.check(#id, principal)")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         taskService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Obtener panel de control/estadísticas de tareas")
+    @GetMapping("/dashboard")
+    public DashboardDto getDashboard(@AuthenticationPrincipal User autor) {
+        return taskService.getDashboard(autor);
     }
 
 

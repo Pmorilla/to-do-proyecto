@@ -60,7 +60,7 @@ const handleToggle = async () => {
                 task.completed ? 'bg-base-300/40 opacity-80' : 'bg-base-100/60 backdrop-blur-sm']">
     <div class="card-body p-6">
       <div class="flex flex-col sm:flex-row justify-between items-start gap-2">
-        <div class="flex items-start gap-3 w-full sm:w-auto">
+        <div class="flex items-start gap-3  w-full sm:w-auto">
           <input 
             type="checkbox" 
             :checked="task.completed" 

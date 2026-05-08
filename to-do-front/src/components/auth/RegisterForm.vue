@@ -7,6 +7,7 @@ const authStore = useAuthStore();
 const router = useRouter();
 
 const username = ref('');
+const fullname = ref('');
 const password = ref('');
 const email = ref('');
 const error = ref('');
@@ -15,8 +16,16 @@ const loading = ref(false);
 const handleRegister = async () => {
   error.value = '';
   loading.value = true;
+
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+  if (!passwordRegex.test(password.value)) {
+    error.value = 'La contraseña debe tener al menos 8 caracteres, una letra y un número.';
+    loading.value = false;
+    return;
+  }
+
   try {
-    await authStore.register({ username: username.value, password: password.value, email: email.value });
+    await authStore.register({ username: username.value, fullname: fullname.value, password: password.value, email: email.value });
     // Intentar iniciar sesión automáticamente tras el registro
     await authStore.login(username.value, password.value);
     router.push({ name: 'home' });
@@ -34,6 +43,12 @@ const handleRegister = async () => {
       <h2 class="card-title text-2xl font-bold mb-4 justify-center">Crear Cuenta</h2>
       <form @submit.prevent="handleRegister">
         <div class="form-control">
+          <label class="label">
+            <span class="label-text">Nombre Completo</span>
+          </label>
+          <input v-model="fullname" type="text" placeholder="Tu nombre completo" class="input input-bordered" required />
+        </div>
+        <div class="form-control mt-4">
           <label class="label">
             <span class="label-text">Usuario</span>
           </label>

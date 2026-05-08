@@ -2,7 +2,7 @@ package com.openwebinars.todo.rest.dto;
 
 import com.openwebinars.todo.rest.model.Task;
 import com.openwebinars.todo.rest.model.TaskPriority;
-import com.openwebinars.todo.rest.users.NewUserResponse;
+import com.openwebinars.todo.rest.dto.NewUserResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;

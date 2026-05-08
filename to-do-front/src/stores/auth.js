@@ -9,6 +9,8 @@ export const useAuthStore = defineStore('auth', {
   getters: {
     isAuthenticated: (state) => !!state.token,
     isAdmin: (state) => state.user?.role === 'ADMIN',
+    isManager: (state) => state.user?.role === 'MANAGER',
+    canManageCategories: (state) => state.user?.role === 'ADMIN' || state.user?.role === 'MANAGER',
   },
   actions: {
     async login(username, password) {
@@ -41,6 +43,17 @@ export const useAuthStore = defineStore('auth', {
         return response.data;
       } catch (error) {
         console.error('Error en el registro', error);
+        throw error;
+      }
+    },
+    async updateProfile(userData) {
+      try {
+        const response = await api.put('/me', userData);
+        this.user = response.data;
+        localStorage.setItem('user', JSON.stringify(this.user));
+        return response.data;
+      } catch (error) {
+        console.error('Error al actualizar el perfil', error);
         throw error;
       }
     },
