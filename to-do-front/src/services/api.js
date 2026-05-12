@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useAuthStore } from '../stores/auth';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
 });
 
 // Intercepta las peticiones salientes para añadir el token de autenticación si el usuario ha iniciado sesión

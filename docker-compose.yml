@@ -1,0 +1,49 @@
+services:
+  pablo-todo-db:
+    image: mysql:8.0
+    container_name: pablo-todo-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: todo-list
+    ports:
+      - "3307:3306"
+    volumes:
+      - pablo-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pablo-todo-backend:
+    build:
+      context: ./api-back/todo-PabloMorillaFuentes/todo-rest
+      dockerfile: Dockerfile
+    container_name: pablo-todo-backend
+    restart: always
+    ports:
+      - "8082:8080"
+    environment:
+      - DB_HOST=pablo-todo-db
+      - DB_PORT=3306
+      - DB_USERNAME=root
+      - DB_PASSWORD=rootpassword
+    depends_on:
+      pablo-todo-db:
+        condition: service_healthy
+
+  pablo-todo-frontend:
+    build:
+      context: ./to-do-front
+      dockerfile: Dockerfile
+    container_name: pablo-todo-frontend
+    restart: always
+    ports:
+      - "8081:80"
+    depends_on:
+      - pablo-todo-backend
+
+volumes:
+  pablo-db-data:
+    name: pablo-db-data
