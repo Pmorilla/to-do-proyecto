@@ -34,7 +34,8 @@ public class SecurityConfig {
 
         http
                 .cors(Customizer.withDefaults())
-                .httpBasic(Customizer.withDefaults())
+                .httpBasic(basic -> basic.authenticationEntryPoint(authenticationEntryPoint))
+                .formLogin(form -> form.disable())
                 .exceptionHandling(excep -> {
                     excep.accessDeniedHandler(accessDeniedHandler);
                     excep.authenticationEntryPoint(authenticationEntryPoint);
@@ -59,12 +60,7 @@ public class SecurityConfig {
     @Bean
     UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(
-                "http://localhost:5173",
-                "http://127.0.0.1:5173",
-                "http://localhost:8081",
-                "http://127.0.0.1:8081"
-        ));
+        configuration.setAllowedOriginPatterns(List.of("*"));
         configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS","HEAD"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
         configuration.setAllowCredentials(true);

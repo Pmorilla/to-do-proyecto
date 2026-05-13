@@ -24,6 +24,13 @@ const handleRegister = async () => {
     return;
   }
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email.value)) {
+    error.value = 'Por favor, introduce un correo electrónico válido.';
+    loading.value = false;
+    return;
+  }
+
   try {
     await authStore.register({ username: username.value, fullname: fullname.value, password: password.value, email: email.value });
     // Intentar iniciar sesión automáticamente tras el registro
@@ -41,7 +48,7 @@ const handleRegister = async () => {
   <div class="card w-full max-w-sm shadow-2xl bg-base-100">
     <div class="card-body">
       <h2 class="card-title text-2xl font-bold mb-4 justify-center">Crear Cuenta</h2>
-      <form @submit.prevent="handleRegister">
+      <form @submit.prevent="handleRegister" novalidate>
         <div class="form-control">
           <label class="label">
             <span class="label-text">Nombre Completo</span>

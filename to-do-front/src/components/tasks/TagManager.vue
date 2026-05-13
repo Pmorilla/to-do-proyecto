@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useTaskStore } from '../../stores/tasks';
+import ConfirmationModal from '../common/ConfirmationModal.vue';
 
 const props = defineProps({
   show: {
@@ -15,29 +16,41 @@ const newTagName = ref('');
 const editingTagId = ref(null);
 const editTagName = ref('');
 const loading = ref(false);
+const errorMsg = ref('');
+
+const confirmModalOpen = ref(false);
+const tagToDelete = ref(null);
 
 const handleAddTag = async () => {
   if (!newTagName.value.trim()) return;
   
+  errorMsg.value = '';
   loading.ref = true;
   try {
     await taskStore.addTag(newTagName.value.trim());
     newTagName.value = '';
   } catch (error) {
-    alert('Error al crear la etiqueta');
+    errorMsg.value = 'Error al crear la etiqueta';
   } finally {
     loading.ref = false;
   }
 };
 
 const handleDeleteTag = async (id) => {
-  if (confirm('¿Estás seguro de que quieres eliminar esta etiqueta? Las tareas que la usen dejarán de tenerla.')) {
+  tagToDelete.value = id;
+  confirmModalOpen.value = true;
+};
+
+const confirmDeleteTag = async () => {
+  if (tagToDelete.value) {
     try {
-      await taskStore.deleteTag(id);
+      await taskStore.deleteTag(tagToDelete.value);
     } catch (error) {
-      alert('Error al eliminar la etiqueta');
+      errorMsg.value = 'Error al eliminar la etiqueta';
     }
+    tagToDelete.value = null;
   }
+  confirmModalOpen.value = false;
 };
 
 const startEdit = (tag) => {
@@ -53,12 +66,13 @@ const cancelEdit = () => {
 const handleUpdateTag = async (id) => {
   if (!editTagName.value.trim()) return;
   
+  errorMsg.value = '';
   loading.value = true;
   try {
     await taskStore.updateTag(id, editTagName.value.trim());
     cancelEdit();
   } catch (error) {
-    alert('Error al actualizar la etiqueta');
+    errorMsg.value = 'Error al actualizar la etiqueta';
   } finally {
     loading.value = false;
   }
@@ -73,6 +87,11 @@ const handleUpdateTag = async (id) => {
           Gestionar Etiquetas
         </h3>
         <button class="btn btn-sm btn-circle btn-ghost" @click="emit('close')">✕</button>
+      </div>
+
+      <div v-if="errorMsg" class="alert alert-error mb-6 text-sm py-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <span>{{ errorMsg }}</span>
       </div>
 
       <!-- Formulario para Añadir Etiqueta -->
@@ -149,6 +168,13 @@ const handleUpdateTag = async (id) => {
       <button>close</button>
     </form>
   </dialog>
+  <ConfirmationModal
+    :isOpen="confirmModalOpen"
+    title="Eliminar etiqueta"
+    message="¿Estás seguro de que quieres eliminar esta etiqueta? Las tareas que la usen dejarán de tenerla."
+    @confirm="confirmDeleteTag"
+    @cancel="confirmModalOpen = false"
+  />
 </template>
 
 <style scoped>

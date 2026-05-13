@@ -4,12 +4,16 @@ import { useTaskStore } from '../../stores/tasks';
 import TaskItem from './TaskItem.vue';
 import TaskForm from './TaskForm.vue';
 import TagManager from './TagManager.vue';
+import ConfirmationModal from '../common/ConfirmationModal.vue';
 
 const taskStore = useTaskStore();
 
 const showModal = ref(false);
 const showTagManager = ref(false);
 const selectedTask = ref(null);
+
+const confirmModalOpen = ref(false);
+const taskToDelete = ref(null);
 
 // Filtros para las tareas
 const filters = ref({
@@ -41,9 +45,16 @@ const openEditModal = (task) => {
 };
 
 const handleDelete = async (id) => {
-  if (confirm('¿Estás seguro de que quieres eliminar esta tarea?')) {
-    await taskStore.deleteTask(id);
+  taskToDelete.value = id;
+  confirmModalOpen.value = true;
+};
+
+const confirmDeleteTask = async () => {
+  if (taskToDelete.value) {
+    await taskStore.deleteTask(taskToDelete.value);
+    taskToDelete.value = null;
   }
+  confirmModalOpen.value = false;
 };
 
 const handleSave = async (taskData) => {
@@ -195,6 +206,14 @@ const clearFilters = () => {
     <TagManager 
       :show="showTagManager" 
       @close="showTagManager = false" 
+    />
+
+    <ConfirmationModal
+      :isOpen="confirmModalOpen"
+      title="Eliminar tarea"
+      message="¿Estás seguro de que quieres eliminar esta tarea?"
+      @confirm="confirmDeleteTask"
+      @cancel="confirmModalOpen = false"
     />
   </div>
 </template>

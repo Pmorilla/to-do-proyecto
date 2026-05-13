@@ -23,6 +23,7 @@ const completed = ref(false);
 const priority = ref('LOW');
 const categoryId = ref('');
 const selectedTags = ref([]);
+const errorMsg = ref('');
 
 onMounted(() => {
   taskStore.fetchCategories();
@@ -40,6 +41,7 @@ const formatDatetimeLocal = (dateString) => {
 // Actualizamos el formulario interno cada vez que se muestre el modal (propiedad show) o la tarea a editar cambie
 watch(() => props.show, (newVal) => {
   if (newVal) {
+    errorMsg.value = '';
     if (props.taskToEdit) {
       title.value = props.taskToEdit.title;
       description.value = props.taskToEdit.description;
@@ -70,6 +72,17 @@ const toggleTag = (tagName) => {
 };
 
 const handleSubmit = () => {
+  errorMsg.value = '';
+  
+  if (!title.value.trim()) {
+    errorMsg.value = 'El título es obligatorio.';
+    return;
+  }
+  if (!description.value.trim()) {
+    errorMsg.value = 'La descripción es obligatoria.';
+    return;
+  }
+
   let formattedDeadline = null;
   if (deadline.value) {
     formattedDeadline = deadline.value.replace('T', ' ') + ':00';
@@ -97,8 +110,13 @@ const handleSubmit = () => {
         </h3>
         <button class="btn btn-sm btn-circle btn-ghost" @click="emit('close')">✕</button>
       </div>
+
+      <div v-if="errorMsg" class="alert alert-error mb-6 text-sm py-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <span>{{ errorMsg }}</span>
+      </div>
       
-      <form @submit.prevent="handleSubmit" class="space-y-4">
+      <form @submit.prevent="handleSubmit" class="space-y-4" novalidate>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="form-control md:col-span-2">
             <label class="label"><span class="label-text font-semibold">Título</span></label>

@@ -21,6 +21,19 @@ const handleUpdate = async () => {
   loading.value = true;
   successMessage.value = '';
   errorMessage.value = '';
+
+  if (!fullname.value.trim()) {
+    errorMessage.value = 'El nombre completo es obligatorio.';
+    loading.value = false;
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email.value)) {
+    errorMessage.value = 'Por favor, introduce un correo electrónico válido.';
+    loading.value = false;
+    return;
+  }
   
   try {
     await authStore.updateProfile({
@@ -60,7 +73,7 @@ const handleUpdate = async () => {
         <span>{{ errorMessage }}</span>
       </div>
 
-      <form @submit.prevent="handleUpdate" class="space-y-5">
+      <form @submit.prevent="handleUpdate" class="space-y-5" novalidate>
         <div class="form-control w-full">
           <label class="label">
             <span class="label-text font-bold opacity-70">Nombre de Usuario</span>

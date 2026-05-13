@@ -1,9 +1,14 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import api from '../services/api';
+import ConfirmationModal from '../components/common/ConfirmationModal.vue';
 
 const users = ref([]);
 const loading = ref(false);
+const pageErrorMsg = ref('');
+
+const confirmModalOpen = ref(false);
+const userToDelete = ref(null);
 
 const fetchUsers = async () => {
   loading.value = true;
@@ -11,7 +16,7 @@ const fetchUsers = async () => {
     const response = await api.get('/users');
     users.value = response.data;
   } catch (error) {
-    alert('Error al cargar usuarios');
+    pageErrorMsg.value = 'Error al cargar usuarios';
   } finally {
     loading.value = false;
   }
@@ -20,32 +25,42 @@ const fetchUsers = async () => {
 onMounted(fetchUsers);
 
 const promoteUser = async (id) => {
+  pageErrorMsg.value = '';
   try {
     await api.put(`/users/${id}/promote`);
     await fetchUsers();
   } catch (error) {
-    alert('Error al promocionar al usuario');
+    pageErrorMsg.value = 'Error al promocionar al usuario';
   }
 };
 
 const demoteUser = async (id) => {
+  pageErrorMsg.value = '';
   try {
     await api.put(`/users/${id}/demote`);
     await fetchUsers();
   } catch (error) {
-    alert('Error al degradar al usuario');
+    pageErrorMsg.value = 'Error al degradar al usuario';
   }
 };
 
 const deleteUser = async (id) => {
-  if (confirm('¿Estás seguro de eliminar este usuario?')) {
+  userToDelete.value = id;
+  confirmModalOpen.value = true;
+};
+
+const confirmDeleteUser = async () => {
+  if (userToDelete.value) {
+    pageErrorMsg.value = '';
     try {
-      await api.delete(`/users/${id}`);
+      await api.delete(`/users/${userToDelete.value}`);
       await fetchUsers();
     } catch (error) {
-      alert('Error al eliminar usuario');
+      pageErrorMsg.value = 'Error al eliminar usuario';
     }
+    userToDelete.value = null;
   }
+  confirmModalOpen.value = false;
 };
 </script>
 
@@ -59,6 +74,13 @@ const deleteUser = async (id) => {
         </h1>
         <p class="text-base-content/50 font-medium">Administra los roles y accesos</p>
       </div>
+    </div>
+
+    <!-- Error Global -->
+    <div v-if="pageErrorMsg" class="alert alert-error shadow-xl rounded-2xl">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <span>{{ pageErrorMsg }}</span>
+      <button class="btn btn-sm btn-ghost" @click="pageErrorMsg = ''">✕</button>
     </div>
 
     <div v-if="loading" class="flex justify-center my-12">
@@ -104,5 +126,13 @@ const deleteUser = async (id) => {
         </table>
       </div>
     </div>
+    
+    <ConfirmationModal
+      :isOpen="confirmModalOpen"
+      title="Eliminar usuario"
+      message="¿Estás seguro de eliminar este usuario?"
+      @confirm="confirmDeleteUser"
+      @cancel="confirmModalOpen = false"
+    />
   </div>
 </template>

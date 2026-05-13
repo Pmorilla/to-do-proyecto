@@ -13,6 +13,12 @@ const loading = ref(false);
 
 const handleLogin = async () => {
   error.value = "";
+  
+  if (!username.value.trim() || !password.value.trim()) {
+    error.value = "Por favor, completa todos los campos.";
+    return;
+  }
+
   loading.value = true;
   try {
     await authStore.login(username.value, password.value);
@@ -31,7 +37,7 @@ const handleLogin = async () => {
       <h2 class="card-title text-2xl font-bold mb-4 justify-center">
         Iniciar Sesión
       </h2>
-      <form @submit.prevent="handleLogin">
+      <form @submit.prevent="handleLogin" novalidate>
         <div class="form-control">
           <label class="label">
             <span class="label-text">Usuario</span>
