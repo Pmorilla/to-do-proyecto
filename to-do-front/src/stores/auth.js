@@ -46,12 +46,14 @@ export const useAuthStore = defineStore('auth', {
         throw error;
       }
     },
+
     async updateProfile(userData) {
       try {
-        const response = await api.put('/me', userData);
-        this.user = response.data;
+        const response = await api.get('/profile'); // Asegurarnos de tener datos frescos
+        const responseUpdate = await api.put('/profile', userData);
+        this.user = responseUpdate.data;
         localStorage.setItem('user', JSON.stringify(this.user));
-        return response.data;
+        return responseUpdate.data;
       } catch (error) {
         console.error('Error al actualizar el perfil', error);
         throw error;

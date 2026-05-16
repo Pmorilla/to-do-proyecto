@@ -26,6 +26,7 @@ public class UserController {
 
     private final UserService userService;
 
+    // Registro de un nuevo usuario
     @Operation(summary = "Registro de un nuevo usuario")
     @PostMapping("/auth/register")
     public ResponseEntity<NewUserResponse> createUser(@RequestBody NewUserCommand comando) {
@@ -33,6 +34,7 @@ public class UserController {
                 .body(NewUserResponse.of(userService.register(comando)));
     }
 
+    // Obtener el perfil del usuario autenticado
     @Operation(summary = "Obtener el perfil del usuario autenticado")
     @SecurityRequirement(name = "basicAuth")
     @GetMapping("/me")
@@ -40,13 +42,15 @@ public class UserController {
         return NewUserResponse.of(user);
     }
 
+    // Actualizar el perfil del usuario autenticado
     @Operation(summary = "Actualizar el perfil del usuario autenticado")
     @SecurityRequirement(name = "basicAuth")
-    @PutMapping("/me")
+    @PutMapping({"/me", "/profile"})
     public NewUserResponse updateMe(@AuthenticationPrincipal User user, @RequestBody UpdateUserCommand command) {
         return NewUserResponse.of(userService.update(user, command));
     }
 
+    // Obtener todos los usuarios (Solo ADMIN)
     @Operation(summary = "Obtener todos los usuarios (Solo ADMIN)")
     @SecurityRequirement(name = "basicAuth")
     @PreAuthorize("hasRole('ADMIN')")
@@ -55,6 +59,7 @@ public class UserController {
         return userService.findAll().stream().map(NewUserResponse::of).toList();
     }
 
+    // Promocionar usuario a gestor (Solo ADMIN)
     @Operation(summary = "Promocionar usuario a gestor (Solo ADMIN)")
     @SecurityRequirement(name = "basicAuth")
     @PreAuthorize("hasRole('ADMIN')")
@@ -63,6 +68,7 @@ public class UserController {
         return NewUserResponse.of(userService.changeRole(id, UserRole.MANAGER));
     }
 
+    // Degradar gestor a usuario (Solo ADMIN)
     @Operation(summary = "Degradar gestor a usuario (Solo ADMIN)")
     @SecurityRequirement(name = "basicAuth")
     @PreAuthorize("hasRole('ADMIN')")
@@ -71,6 +77,7 @@ public class UserController {
         return NewUserResponse.of(userService.changeRole(id, UserRole.USER));
     }
 
+    // Eliminar un usuario (Solo ADMIN)
     @Operation(summary = "Eliminar un usuario (Solo ADMIN)")
     @SecurityRequirement(name = "basicAuth")
     @PreAuthorize("hasRole('ADMIN')")

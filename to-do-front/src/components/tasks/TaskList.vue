@@ -17,6 +17,8 @@ const taskToDelete = ref(null);
 
 // Filtros para las tareas
 const filters = ref({
+  title: '',
+  description: '',
   categoryId: '',
   completed: '',
   priority: '',
@@ -68,6 +70,8 @@ const handleSave = async (taskData) => {
 
 const clearFilters = () => {
   filters.value = {
+    title: '',
+    description: '',
     categoryId: '',
     completed: '',
     priority: '',
@@ -107,7 +111,18 @@ const clearFilters = () => {
       <div class="divider opacity-10"></div>
 
       <!-- Barra de Filtros -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 xl:grid-cols-7 gap-4 items-end">
+        <!-- Búsqueda por Título -->
+        <div class="form-control">
+          <label class="label py-1"><span class="label-text text-xs font-bold uppercase opacity-50">Título</span></label>
+          <input v-model="filters.title" type="text" placeholder="Título..." class="input input-bordered input-sm rounded-xl bg-base-100" />
+        </div>
+
+        <!-- Búsqueda por Descripción -->
+        <div class="form-control">
+          <label class="label py-1"><span class="label-text text-xs font-bold uppercase opacity-50">Descripción</span></label>
+          <input v-model="filters.description" type="text" placeholder="Descripción..." class="input input-bordered input-sm rounded-xl bg-base-100" />
+        </div>
         <!-- Desplegable de Categoría -->
         <div class="dropdown">
           <label class="label py-1"><span class="label-text text-xs font-bold uppercase opacity-50">Categoría</span></label>

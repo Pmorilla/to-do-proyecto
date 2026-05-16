@@ -12,14 +12,18 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name", "user_id"}))
 public class Tag {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    @Column(unique = true)
     private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Builder.Default
     @ToString.Exclude

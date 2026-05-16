@@ -7,6 +7,11 @@ import com.openwebinars.todo.rest.dto.NewUserResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * DTO para la salida de datos de una tarea.
+ * Justificación: Se utiliza para evitar la exposición directa de la entidad JPA,
+ * prevenir problemas de recursividad con Jackson y filtrar campos innecesarios.
+ */
 public record GetTaskDto(
         Long id,
         String title,

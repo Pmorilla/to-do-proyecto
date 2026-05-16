@@ -11,6 +11,7 @@ import com.openwebinars.todo.rest.model.User;
 import com.openwebinars.todo.rest.model.TaskPriority;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -25,11 +26,12 @@ import com.openwebinars.todo.rest.dto.DashboardDto;
  */
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class TaskService {
 
     private final TaskRepository taskRepository;
-    private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
+    private final CategoryRepository categoryRepository;
 
     public List<Task> findAll() {
         List<Task> result = taskRepository.findAll();
@@ -50,14 +52,24 @@ public class TaskService {
         return result;
     }
 
-    public List<Task> search(User autor, Long categoryId, Boolean completed, TaskPriority priority, String tagName) {
+    public List<Task> search(User autor, String title, String description, String category, Boolean completed, TaskPriority priority, String tagName, LocalDateTime deadlineBefore, LocalDateTime deadlineAfter) {
         List<Task> tasks = taskRepository.findByAuthor(autor);
 
         return tasks.stream()
-                .filter(t -> categoryId == null || (t.getCategory() != null && t.getCategory().getId().equals(categoryId)))
+                .filter(t -> title == null || t.getTitle().toLowerCase().contains(title.toLowerCase()))
+                .filter(t -> description == null || t.getDescription().toLowerCase().contains(description.toLowerCase()))
+                .filter(t -> {
+                    if (category == null || category.isEmpty()) return true;
+                    if (t.getCategory() == null) return false;
+                    // Buscamos por ID (si es número) o por nombre
+                    return t.getCategory().getId().toString().equals(category) || 
+                           t.getCategory().getName().equalsIgnoreCase(category);
+                })
                 .filter(t -> completed == null || t.isCompleted() == completed)
                 .filter(t -> priority == null || t.getPriority() == priority)
                 .filter(t -> tagName == null || t.getTags().stream().anyMatch(tag -> tag.getName().equalsIgnoreCase(tagName)))
+                .filter(t -> deadlineBefore == null || (t.getDeadline() != null && t.getDeadline().isBefore(deadlineBefore)))
+                .filter(t -> deadlineAfter == null || (t.getDeadline() != null && t.getDeadline().isAfter(deadlineAfter)))
                 .collect(Collectors.toList());
     }
 
@@ -82,7 +94,8 @@ public class TaskService {
 
         if (peticion.tags() != null) {
             task.setTags(peticion.tags().stream()
-                    .map(name -> tagRepository.findByName(name).orElseGet(() -> tagRepository.save(Tag.builder().name(name).build())))
+                    .map(name -> tagRepository.findByNameAndUser(name, autor)
+                            .orElseGet(() -> tagRepository.save(Tag.builder().name(name).user(autor).build())))
                     .collect(Collectors.toList()));
         }
 
@@ -107,7 +120,8 @@ public class TaskService {
                     if (peticion.tags() != null) {
                         t.getTags().clear();
                         t.getTags().addAll(peticion.tags().stream()
-                                .map(name -> tagRepository.findByName(name).orElseGet(() -> tagRepository.save(Tag.builder().name(name).build())))
+                                .map(name -> tagRepository.findByNameAndUser(name, t.getAuthor())
+                                        .orElseGet(() -> tagRepository.save(Tag.builder().name(name).user(t.getAuthor()).build())))
                                 .toList());
                     } else {
                         t.getTags().clear();
@@ -149,5 +163,23 @@ public class TaskService {
         return new DashboardDto(total, completed, pending, overdue, byCategory, byTag);
     }
 
+    @Transactional
+    public Task addTagToTask(Long taskId, Long tagId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException(taskId));
+        Tag tag = tagRepository.findById(tagId)
+                .orElseThrow(() -> new RuntimeException("Tag no encontrado"));
+        
+        task.getTags().add(tag);
+        return taskRepository.save(task);
+    }
 
+    @Transactional
+    public Task removeTagFromTask(Long taskId, Long tagId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException(taskId));
+        
+        task.getTags().removeIf(t -> t.getId().equals(tagId));
+        return taskRepository.save(task);
+    }
 }

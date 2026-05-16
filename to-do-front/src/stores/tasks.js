@@ -16,14 +16,37 @@ export const useTaskStore = defineStore('tasks', {
       try {
         // Construimos los parámetros de búsqueda (filtros)
         const params = new URLSearchParams();
-        if (filters.categoryId) params.append('categoryId', filters.categoryId);
+        let hasFilters = false;
+
+        if (filters.title) {
+          params.append('title', filters.title);
+          hasFilters = true;
+        }
+        if (filters.description) {
+          params.append('description', filters.description);
+          hasFilters = true;
+        }
+        if (filters.categoryId) {
+          params.append('category', filters.categoryId);
+          hasFilters = true;
+        }
         if (filters.completed !== undefined && filters.completed !== null && filters.completed !== '') {
            params.append('completed', filters.completed);
+           hasFilters = true;
         }
-        if (filters.priority) params.append('priority', filters.priority);
-        if (filters.tag) params.append('tag', filters.tag);
+        if (filters.priority) {
+          params.append('priority', filters.priority);
+          hasFilters = true;
+        }
+        if (filters.tag) {
+          params.append('tag', filters.tag);
+          hasFilters = true;
+        }
 
-        const response = await api.get(`/task?${params.toString()}`);
+        // Si tiene filtros, usamos /task/search. Si no, usamos el listado simple /task
+        const url = hasFilters ? `/task/search?${params.toString()}` : '/task';
+
+        const response = await api.get(url);
         this.tasks = response.data;
       } catch (error) {
         if (error.response && error.response.status === 404) {
@@ -39,7 +62,7 @@ export const useTaskStore = defineStore('tasks', {
 
     async fetchCategories() {
       try {
-        const response = await api.get('/category');
+        const response = await api.get('/categories');
         this.categories = response.data;
       } catch (error) {
         console.error('Error al cargar categorías', error);

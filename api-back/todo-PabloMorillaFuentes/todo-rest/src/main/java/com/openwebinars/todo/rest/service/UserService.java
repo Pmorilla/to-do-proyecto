@@ -32,8 +32,12 @@ public class UserService {
     }
 
     public User update(User user, UpdateUserCommand command) {
-        user.setEmail(command.email());
-        user.setFullname(command.fullname());
+        if (command.username() != null) user.setUsername(command.username());
+        if (command.email() != null) user.setEmail(command.email());
+        if (command.fullname() != null) user.setFullname(command.fullname());
+        if (command.password() != null && !command.password().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(command.password()));
+        }
         return userRepository.save(user);
     }
 

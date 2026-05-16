@@ -9,7 +9,7 @@ const error = ref('');
 onMounted(async () => {
   loading.value = true;
   try {
-    const response = await api.get('/task/dashboard');
+    const response = await api.get('/dashboard');
     dashboardData.value = response.data;
   } catch (err) {
     error.value = 'Error al cargar el panel de control';

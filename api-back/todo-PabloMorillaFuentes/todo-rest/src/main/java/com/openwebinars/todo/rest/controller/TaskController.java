@@ -7,7 +7,6 @@ import com.openwebinars.todo.rest.service.TaskService;
 import com.openwebinars.todo.rest.model.User;
 import com.openwebinars.todo.rest.model.TaskPriority;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Controlador para la gestión de tareas.
+ *       Controlador para la gestión de tareas.
  * 
  * @author Pablo Morilla
  */
@@ -36,31 +35,47 @@ public class TaskController {
 
     private final TaskService taskService;
 
-    @Operation(
-            summary = "Obtener todas las tareas del usuario (con filtros opcionales)",
-            description = "Permite obtener todas las tareas de un usuario, con capacidad de filtrado"
-    )
-    @ApiResponse(description = "Listado de tareas del usuario",
-            responseCode = "200",
-            content = @Content(
-                    mediaType = "application/json",
-                    array = @ArraySchema(schema = @Schema(implementation = GetTaskDto.class))
-            )
-    )
+    // Listar todas las tareas del usuario autenticado
+    @Operation(summary = "Listar todas las tareas del usuario")
     @GetMapping
-    public List<GetTaskDto> getAll(
-            @AuthenticationPrincipal User autor,
-            @RequestParam(required = false) Long categoryId,
-            @RequestParam(required = false) Boolean completed,
-            @RequestParam(required = false) TaskPriority priority,
-            @RequestParam(required = false) String tag
-    ) {
-        return taskService.search(autor, categoryId, completed, priority, tag)
+    public List<GetTaskDto> getAll(@AuthenticationPrincipal User autor) {
+        return taskService.findByAuthor(autor)
                 .stream()
                 .map(GetTaskDto::of)
                 .toList();
     }
 
+    // Buscar tareas por múltiples campos
+    @Operation(summary = "Buscar tareas por múltiples criterios")
+    @GetMapping("/search")
+    public List<GetTaskDto> search(
+            @AuthenticationPrincipal User autor,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) Boolean completed,
+            @RequestParam(required = false) TaskPriority priority,
+            @RequestParam(required = false) String tag,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") java.time.LocalDateTime deadlineBefore,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") java.time.LocalDateTime deadlineAfter
+    ) {
+        return taskService.search(autor, title, description, category, completed, priority, tag, deadlineBefore, deadlineAfter)
+                .stream()
+                .map(GetTaskDto::of)
+                .toList();
+    }
+
+    // Buscar tareas por un tag concreto (específico del enunciado)
+    @Operation(summary = "Buscar tareas con un tag concreto")
+    @GetMapping("/by-tag")
+    public List<GetTaskDto> getByTag(@AuthenticationPrincipal User autor, @RequestParam String tag) {
+        return taskService.search(autor, null, null, null, null, null, tag, null, null)
+                .stream()
+                .map(GetTaskDto::of)
+                .toList();
+    }
+
+    // Obtener una tarea por su ID
     @Operation(
             summary = "Obtener una tarea concreta",
             description = "Permite obtener la una tarea concreta si se le proporciona un id"
@@ -95,6 +110,7 @@ public class TaskController {
 
     }
 
+    // Crear una nueva tarea para el usuario autenticado
     @Operation(
             summary = "Crear una tarea",
             description = "Permite crear una tarea asociada al usuario autenticado"
@@ -145,6 +161,7 @@ public class TaskController {
     }
 
 
+    // Editar una tarea existente
     @Operation(
             summary = "Editar una tarea",
             description = "Permite editar una tarea asociada al usuario autenticado si se proporciona su ID"
@@ -193,6 +210,7 @@ public class TaskController {
         return GetTaskDto.of(taskService.edit(peticion, id));
     }
 
+    // Eliminar una tarea
     @Operation(summary = "Eliminar una tarea")
     @ApiResponse(description = "Respuesta correcta de tarea eliminada",
             responseCode = "204",
@@ -204,10 +222,27 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Obtener panel de control/estadísticas de tareas")
-    @GetMapping("/dashboard")
+    // Dashboard con estadísticas de tareas
+    @Operation(summary = "Dashboard de estadísticas")
+    @GetMapping({"/dashboard", "/stats"})
     public DashboardDto getDashboard(@AuthenticationPrincipal User autor) {
         return taskService.getDashboard(autor);
+    }
+
+    // Asignar tags a una tarea
+    @Operation(summary = "Asignar un tag a una tarea")
+    @PostMapping("/{id}/tags")
+    @PreAuthorize("@ownerCheck.check(#id, principal)")
+    public GetTaskDto addTagToTask(@PathVariable Long id, @RequestBody Long tagId) {
+        return GetTaskDto.of(taskService.addTagToTask(id, tagId));
+    }
+
+    // Eliminar un tag de una tarea
+    @Operation(summary = "Eliminar un tag de una tarea")
+    @DeleteMapping("/{id}/tags/{tagId}")
+    @PreAuthorize("@ownerCheck.check(#id, principal)")
+    public GetTaskDto removeTagFromTask(@PathVariable Long id, @PathVariable Long tagId) {
+        return GetTaskDto.of(taskService.removeTagFromTask(id, tagId));
     }
 
 

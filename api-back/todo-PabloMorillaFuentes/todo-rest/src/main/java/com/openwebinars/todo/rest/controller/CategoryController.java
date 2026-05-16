@@ -13,19 +13,21 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/category")
+@RequestMapping({"/category", "/categories"})
 @RequiredArgsConstructor
 @SecurityRequirement(name = "basicAuth")
 public class CategoryController {
 
     private final CategoryRepository categoryRepository;
 
+    // Listar todas las categorías
     @Operation(summary = "Obtener todas las categorías")
-    @GetMapping
+    @GetMapping({"", "/categories"})
     public List<Category> findAll() {
         return categoryRepository.findAll();
     }
 
+    // Crear una categoría (Solo ADMIN/MANAGER)
     @Operation(summary = "Crear una categoría (Solo ADMIN)")
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
@@ -33,6 +35,7 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(categoryRepository.save(category));
     }
 
+    // Editar una categoría (Solo ADMIN/MANAGER)
     @Operation(summary = "Editar una categoría (Solo ADMIN)")
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
@@ -45,6 +48,7 @@ public class CategoryController {
                 .orElseThrow();
     }
 
+    // Eliminar una categoría (Solo ADMIN/MANAGER)
     @Operation(summary = "Eliminar una categoría (Solo ADMIN)")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
