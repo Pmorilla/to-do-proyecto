@@ -212,7 +212,7 @@ const confirmDeleteCategory = async () => {
     <!-- Modal para Crear/Editar -->
     <div v-if="showModal" class="modal modal-open">
       <div
-        class="modal-box rounded-3xl border border-white/5 bg-base-100 shadow-2xl p-8"
+        class="modal-box rounded-3xl border border-white/5 bg-base-100 shadow-2xl p-8 max-h-[90dvh] overflow-y-auto"
       >
         <h3 class="text-2xl font-black mb-6">
           {{ editingCategory ? "Editar Categoría" : "Nueva Categoría" }}

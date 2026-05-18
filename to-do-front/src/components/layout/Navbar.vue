@@ -58,6 +58,15 @@ onMounted(() => {
         >
           <li v-if="authStore.isAuthenticated">
             <router-link
+              :to="{ name: 'home' }"
+              @click="closeDropdown"
+              class="text-lg font-bold py-3"
+              active-class="active bg-primary/20 text-primary"
+              >Inicio</router-link
+            >
+          </li>
+          <li v-if="authStore.isAuthenticated">
+            <router-link
               :to="{ name: 'dashboard' }"
               @click="closeDropdown"
               class="text-lg font-bold py-3"
@@ -131,6 +140,14 @@ onMounted(() => {
     <!-- Centro de Navbar: Enlaces de Escritorio -->
     <div class="navbar-center hidden sm:flex">
       <ul class="menu menu-horizontal px-1 gap-1">
+        <li v-if="authStore.isAuthenticated">
+          <router-link
+            :to="{ name: 'home' }"
+            class="btn btn-ghost btn-sm normal-case"
+            active-class="btn-active bg-primary/10 text-primary border-primary"
+            >Inicio</router-link
+          >
+        </li>
         <li v-if="authStore.isAuthenticated">
           <router-link
             :to="{ name: 'dashboard' }"

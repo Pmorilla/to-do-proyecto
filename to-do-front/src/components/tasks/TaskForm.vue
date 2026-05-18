@@ -103,7 +103,7 @@ const handleSubmit = () => {
 
 <template>
   <dialog :class="['modal', { 'modal-open': show }]">
-    <div class="modal-box bg-base-100/80 backdrop-blur-md border border-white/10 shadow-2xl max-w-2xl">
+    <div class="modal-box bg-base-100/80 backdrop-blur-md border border-white/10 shadow-2xl max-w-2xl max-h-[90dvh] overflow-y-auto">
       <div class="flex justify-between items-center mb-6">
         <h3 class="font-bold text-2xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           {{ taskToEdit ? 'Editar Tarea' : 'Nueva Tarea' }}

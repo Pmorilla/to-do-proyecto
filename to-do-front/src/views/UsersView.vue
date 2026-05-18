@@ -1,11 +1,11 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import api from '../services/api';
-import ConfirmationModal from '../components/common/ConfirmationModal.vue';
+import { ref, onMounted } from "vue";
+import api from "../services/api";
+import ConfirmationModal from "../components/common/ConfirmationModal.vue";
 
 const users = ref([]);
 const loading = ref(false);
-const pageErrorMsg = ref('');
+const pageErrorMsg = ref("");
 
 const confirmModalOpen = ref(false);
 const userToDelete = ref(null);
@@ -13,10 +13,10 @@ const userToDelete = ref(null);
 const fetchUsers = async () => {
   loading.value = true;
   try {
-    const response = await api.get('/users');
+    const response = await api.get("/users");
     users.value = response.data;
   } catch (error) {
-    pageErrorMsg.value = 'Error al cargar usuarios';
+    pageErrorMsg.value = "Error al cargar usuarios";
   } finally {
     loading.value = false;
   }
@@ -25,22 +25,22 @@ const fetchUsers = async () => {
 onMounted(fetchUsers);
 
 const promoteUser = async (id) => {
-  pageErrorMsg.value = '';
+  pageErrorMsg.value = "";
   try {
     await api.put(`/users/${id}/promote`);
     await fetchUsers();
   } catch (error) {
-    pageErrorMsg.value = 'Error al promocionar al usuario';
+    pageErrorMsg.value = "Error al promocionar al usuario";
   }
 };
 
 const demoteUser = async (id) => {
-  pageErrorMsg.value = '';
+  pageErrorMsg.value = "";
   try {
     await api.put(`/users/${id}/demote`);
     await fetchUsers();
   } catch (error) {
-    pageErrorMsg.value = 'Error al degradar al usuario';
+    pageErrorMsg.value = "Error al degradar al usuario";
   }
 };
 
@@ -51,12 +51,12 @@ const deleteUser = async (id) => {
 
 const confirmDeleteUser = async () => {
   if (userToDelete.value) {
-    pageErrorMsg.value = '';
+    pageErrorMsg.value = "";
     try {
       await api.delete(`/users/${userToDelete.value}`);
       await fetchUsers();
     } catch (error) {
-      pageErrorMsg.value = 'Error al eliminar usuario';
+      pageErrorMsg.value = "Error al eliminar usuario";
     }
     userToDelete.value = null;
   }
@@ -67,18 +67,36 @@ const confirmDeleteUser = async () => {
 <template>
   <div class="mt-8 space-y-8 max-w-5xl mx-auto">
     <!-- Encabezado de Gestión de Usuarios -->
-    <div class="bg-base-200/50 backdrop-blur-sm p-6 rounded-3xl border border-white/5 shadow-xl">
+    <div
+      class="bg-base-200/50 backdrop-blur-sm p-6 rounded-3xl border border-white/5 shadow-xl"
+    >
       <div class="flex flex-col justify-between items-start gap-2">
-        <h1 class="text-4xl font-black bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
+        <h1
+          class="text-4xl font-black bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent"
+        >
           Gestión de Usuarios
         </h1>
-        <p class="text-base-content/50 font-medium">Administra los roles y accesos</p>
+        <p class="text-base-content/50 font-medium">
+          Administra los roles y accesos
+        </p>
       </div>
     </div>
 
     <!-- Error Global -->
     <div v-if="pageErrorMsg" class="alert alert-error shadow-xl rounded-2xl">
-      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="stroke-current shrink-0 h-6 w-6"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+      </svg>
       <span>{{ pageErrorMsg }}</span>
       <button class="btn btn-sm btn-ghost" @click="pageErrorMsg = ''">✕</button>
     </div>
@@ -87,46 +105,145 @@ const confirmDeleteUser = async () => {
       <span class="loading loading-spinner loading-lg text-accent"></span>
     </div>
 
-    <!-- Tabla de Usuarios -->
-    <div v-else class="bg-base-200/30 rounded-3xl border border-white/5 shadow-xl overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="table w-full">
-          <thead>
-            <tr class="bg-base-300/50">
-              <th class="px-6 py-4">Usuario</th>
-              <th class="px-6 py-4">Email</th>
-              <th class="px-6 py-4 text-center">Rol</th>
-              <th class="px-6 py-4 text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="user in users" :key="user.id" class="hover:bg-base-200/50 transition-colors border-b border-base-content/5">
-              <td class="px-6 py-4 font-bold">{{ user.username }}</td>
-              <td class="px-6 py-4 text-sm opacity-70">{{ user.email }}</td>
-              <td class="px-6 py-4 text-center">
-                <span :class="['badge badge-sm font-bold', 
-                  user.role === 'ADMIN' ? 'badge-error' : 
-                  (user.role === 'MANAGER' ? 'badge-warning' : 'badge-info')]">
-                  {{ user.role }}
-                </span>
-              </td>
-              <td class="px-6 py-4 text-right space-x-2">
-                <button v-if="user.role === 'USER'" @click="promoteUser(user.id)" class="btn btn-xs btn-outline btn-warning">
-                  Hacer Gestor
-                </button>
-                <button v-if="user.role === 'MANAGER'" @click="demoteUser(user.id)" class="btn btn-xs btn-outline btn-info">
-                  Degradar a Usuario
-                </button>
-                <button @click="deleteUser(user.id)" class="btn btn-xs btn-error text-white shadow-sm" :disabled="user.role === 'ADMIN'">
-                  Eliminar
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <template v-else>
+      <!-- Vista móvil: Tarjetas de Usuarios -->
+      <div class="sm:hidden space-y-4">
+        <div
+          v-for="user in users"
+          :key="user.id"
+          class="bg-base-200/40 backdrop-blur-sm p-5 rounded-2xl border border-white/5 shadow-md flex flex-col gap-3"
+        >
+          <!-- Fila Superior: Nombre y Rol -->
+          <div class="flex justify-between items-center">
+            <div class="font-bold text-lg text-primary">{{ user.username }}</div>
+            <span
+              :class="[
+                'badge badge-sm font-bold',
+                user.role === 'ADMIN'
+                  ? 'badge-error'
+                  : user.role === 'MANAGER'
+                    ? 'badge-warning'
+                    : 'badge-info',
+              ]"
+            >
+              {{ user.role }}
+            </span>
+          </div>
+
+          <!-- Fila Central: Email -->
+          <div class="text-sm opacity-70 break-all flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              />
+            </svg>
+            {{ user.email }}
+          </div>
+
+          <!-- Fila Inferior: Acciones -->
+          <div class="divider my-1"></div>
+          <div class="flex justify-end gap-2">
+            <button
+              v-if="user.role === 'USER'"
+              @click="promoteUser(user.id)"
+              class="btn btn-sm btn-outline btn-warning flex-1"
+            >
+              Hacer Gestor
+            </button>
+            <button
+              v-if="user.role === 'MANAGER'"
+              @click="demoteUser(user.id)"
+              class="btn btn-sm btn-outline btn-info flex-1"
+            >
+              Degradar a Usuario
+            </button>
+            <button
+              @click="deleteUser(user.id)"
+              class="btn btn-sm btn-error text-white shadow-sm"
+              :class="user.role === 'USER' || user.role === 'MANAGER' ? 'flex-none' : 'w-full'"
+              :disabled="user.role === 'ADMIN'"
+            >
+              Eliminar
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
-    
+
+      <!-- Tabla de Usuarios (Escritorio) -->
+      <div
+        class="hidden sm:block bg-base-200/30 rounded-3xl border border-white/5 shadow-xl overflow-hidden"
+      >
+        <div class="overflow-x-auto">
+          <table class="table w-full">
+            <thead>
+              <tr class="bg-base-300/50">
+                <th class="px-6 py-4">Usuario</th>
+                <th class="px-6 py-4">Email</th>
+                <th class="px-6 py-4 text-center">Rol</th>
+                <th class="px-6 py-4 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="user in users"
+                :key="user.id"
+                class="hover:bg-base-200/50 transition-colors border-b border-base-content/5"
+              >
+                <td class="px-6 py-4 font-bold">{{ user.username }}</td>
+                <td class="px-6 py-4 text-sm opacity-70">{{ user.email }}</td>
+                <td class="px-6 py-4 text-center">
+                  <span
+                    :class="[
+                      'badge badge-sm font-bold',
+                      user.role === 'ADMIN'
+                        ? 'badge-error'
+                        : user.role === 'MANAGER'
+                          ? 'badge-warning'
+                          : 'badge-info',
+                    ]"
+                  >
+                    {{ user.role }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-right space-x-2">
+                  <button
+                    v-if="user.role === 'USER'"
+                    @click="promoteUser(user.id)"
+                    class="btn btn-xs btn-outline btn-warning"
+                  >
+                    Hacer Gestor
+                  </button>
+                  <button
+                    v-if="user.role === 'MANAGER'"
+                    @click="demoteUser(user.id)"
+                    class="btn btn-xs btn-outline btn-info"
+                  >
+                    Degradar a Usuario
+                  </button>
+                  <button
+                    @click="deleteUser(user.id)"
+                    class="btn btn-xs btn-error text-white shadow-sm"
+                    :disabled="user.role === 'ADMIN'"
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </template>
+
     <ConfirmationModal
       :isOpen="confirmModalOpen"
       title="Eliminar usuario"
